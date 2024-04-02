@@ -74,26 +74,7 @@ const deletePost = async (req, res, next) => {
   }
 };
 
-const likePost = async (req, res, next) => {
-  try {
-    const { id: postId } = req.params;
-    const userId = req.user._id;
-    const post = await Post.findById(postId);
-    if (!post) {
-      return next(errorHandler(StatusCodes.NOT_FOUND, "Post not found!"));
-    }
-    const userLikePost = post.likes.includes(userId);
-    if (userLikePost) {
-      post.likes.push(userId);
-      await post.save();
-      res.status(StatusCodes.OK).json("Post liked successfully!");
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
-const unLikePost = async (req, res, next) => {
+const likeUnLikePost = async (req, res, next) => {
   try {
     const { id: postId } = req.params;
     const userId = req.user._id;
@@ -103,8 +84,13 @@ const unLikePost = async (req, res, next) => {
     }
     const userUnLikePost = post.likes.includes(userId);
     if (userUnLikePost) {
-      await Post.updateOne({ _id: postId }, { $pull: { $likes: userId } });
+      await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
       res.status(StatusCodes.OK).json("Post unliked successfully!");
+    } else {
+      // Like post
+      post.likes.push(userId);
+      await post.save();
+      res.status(StatusCodes.OK).json({ message: "Post liked successfully" });
     }
   } catch (error) {
     next(error);
@@ -155,12 +141,29 @@ const feedPost = async (req, res, next) => {
   }
 };
 
+const getUserPosts = async (req, res, next) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return next(errorHandler(StatusCodes.NOT_FOUND, "User not found!"));
+    }
+    const posts = await Post.find({ postedBy: user._id }).sort({
+      createdAt: -1,
+    });
+
+    res.status(StatusCodes.OK).json(posts);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   createPost,
   getPost,
-  likePost,
-  unLikePost,
+  likeUnLikePost,
   replyToPost,
   feedPost,
   deletePost,
+  getUserPosts,
 };
