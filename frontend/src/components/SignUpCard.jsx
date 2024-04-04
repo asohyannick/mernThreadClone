@@ -107,14 +107,19 @@ export default function SignupCard() {
               <FormLabel>Password</FormLabel>
               <InputGroup>
                 <Input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={inputs.password}
                   onChange={(e) =>
                     setInputs({ ...inputs, password: e.target.value })
                   }
                 />
                 <InputRightElement h={"full"}>
-                  <Button variant={"ghost"}></Button>
+                  <Button 
+                   variant={"ghost"}
+                   onClick={() => setShowPassword((showPassword) => !showPassword)}
+                   >
+                    {showPassword ? <ViewIcon/> : <ViewOffIcon/>}
+                  </Button>
                 </InputRightElement>
               </InputGroup>
             </FormControl>
@@ -135,7 +140,7 @@ export default function SignupCard() {
             <Stack pt={6}>
               <Text align={"center"}>
                 Already a user?{" "}
-                <Link color={"blue.400"} onClick={() => setAuthScreen("login")}>
+                <Link  color={"blue.400"} onClick={() => setAuthScreen("login")}>
                   Login
                 </Link>
               </Text>

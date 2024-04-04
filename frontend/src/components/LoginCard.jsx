@@ -18,30 +18,39 @@ import { useSetRecoilState } from "recoil";
 import authScreenAtom from "../atoms/authAtom";
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
+import userAtom from "../atoms/userAtom";
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false);
   const setAuthScreen = useSetRecoilState(authScreenAtom);
   const showToast = useShowToast();
-  const [formData, setFormData] = useState({
+  const setUser = useSetRecoilState(userAtom);
+  const [inputs, setInputs] = useState({
+    name: "",
     username: "",
-    password: "",
   });
-  const handleSignIn = async (e) => {
+  const [loading, setLoading] = useState(false);
+  const handleSignUp = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await fetch("/api/v1/users/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(inputs),
       });
       const data = await res.json();
       if (data.error) {
         showToast("Error", data.error, "error");
+        return;
       }
+      localStorage.setItem("user-threads", JSON.stringify(data));
+      setUser(data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -59,33 +68,39 @@ export default function LoginCard() {
           p={8}
           w={{
             base: "full",
-            sm: "450px",
+            sm: "500px",
           }}
         >
           <Stack spacing={4}>
             <FormControl isRequired>
               <FormLabel>Username</FormLabel>
-              <InputGroup>
-                <Input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ username: e.target.value })}
-                />
-                <InputRightElement h={"full"}>
-                  <Button variant={"ghost"}></Button>
-                </InputRightElement>
-              </InputGroup>
+              <Input
+                type="text"
+                value={inputs.username}
+                onChange={(e) =>
+                  setInputs({ ...inputs, username: e.target.value })
+                }
+              />
             </FormControl>
             <FormControl isRequired>
               <FormLabel>Password</FormLabel>
               <InputGroup>
                 <Input
-                  type="passowrd"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ password: e.target.value })}
+                  type={showPassword ? "text" : "password"}
+                  value={inputs.password}
+                  onChange={(e) =>
+                    setInputs({ ...inputs, password: e.target.value })
+                  }
                 />
                 <InputRightElement h={"full"}>
-                  <Button variant={"ghost"}></Button>
+                  <Button
+                    variant={"ghost"}
+                    onClick={() =>
+                      setShowPassword((showPassword) => !showPassword)
+                    }
+                  >
+                    {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                  </Button>
                 </InputRightElement>
               </InputGroup>
             </FormControl>
@@ -98,7 +113,8 @@ export default function LoginCard() {
                 _hover={{
                   bg: useColorModeValue("gray.700", "gray.800"),
                 }}
-                onClick={handleSignIn}
+                onClick={handleSignUp}
+                isLoading={loading}
               >
                 Login
               </Button>
@@ -106,11 +122,8 @@ export default function LoginCard() {
             <Stack pt={6}>
               <Text align={"center"}>
                 Don&lsquo;t have an account?{" "}
-                <Link
-                  onClick={() => setAuthScreen("signup")}
-                  color={"blue.400"}
-                >
-                  Sign Up
+                <Link color={"blue.400"} onClick={() => setAuthScreen("signup")}>
+                  SignUp
                 </Link>
               </Text>
             </Stack>
@@ -120,3 +133,4 @@ export default function LoginCard() {
     </Flex>
   );
 }
+

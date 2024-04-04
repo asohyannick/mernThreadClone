@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import connectDB from "./db/connectDB.js";
 import usersRoutes from "./routes/user.route.js";
 import postsRoutes from "./routes/post.route.js";
+import {v2 as cloudinary} from "cloudinary";
 import path from "path";
 const app = express();
 app.use(cors());
@@ -16,6 +17,11 @@ app.use(cookieParser());
 app.use("/api/v1/users", usersRoutes);
 app.use("/api/v1/posts", postsRoutes);
 const port = process.env.PORT || 8000;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "client/dist")));
 app.get("*", (req, res) => {

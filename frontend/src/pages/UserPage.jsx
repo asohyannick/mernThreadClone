@@ -1,9 +1,36 @@
+import { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
 import UserPost from "../components/UserPost";
+import { useParams } from "react-router-dom";
+import useShowToast from "../hooks/useShowToast";
 function UserPage() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { username } = useParams();
+  const showToast = useShowToast();
+  useEffect(() => {
+    const getUser = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/v1/users/profile/${username}`);
+        const data = await res.json();
+        if (data.error) {
+          showToast("Error", data.error, "error");
+          return;
+        }
+        setUser(data);
+      } catch (error) {
+        showToast("Error", error, "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    getUser();
+  }, [username, showToast]);
+  if (!user) return null;
   return (
     <>
-      <UserHeader />
+      <UserHeader user={user} />
       <UserPost
         likes={1200}
         replies={481}
@@ -22,11 +49,7 @@ function UserPage() {
         postImg="/post3.png"
         postTitle="I love this guy."
       />
-      <UserPost
-        likes={110}
-        replies={850}
-        postTitle="This is my first thread"
-      />
+      <UserPost likes={110} replies={850} postTitle="This is my first thread" />
     </>
   );
 }

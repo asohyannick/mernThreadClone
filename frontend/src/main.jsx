@@ -30,6 +30,7 @@ const colors = {
 const theme = extendTheme({ config, styles, colors });
 
 ReactDOM.createRoot(document.getElementById("root")).render(
+  // React.strictmore renders every components twice, on development
   <RecoilRoot>
     <BrowserRouter>
       <ChakraProvider theme={theme}>
