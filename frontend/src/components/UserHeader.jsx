@@ -22,7 +22,7 @@ function UserHeader({ user }) {
   const currentUser = useRecoilValue(userAtom);
   const [loading, setLoading] = useState(false);
   const [following, setFollowing] = useState(
-    user.followers.includes(currentUser._id)
+    user.followers.includes(currentUser?._id)
   );
   const [updating, setUpdating] = useState(false);
 
@@ -63,7 +63,7 @@ function UserHeader({ user }) {
         user.followers.pop(); // simulate removing from followers
       } else {
         showToast("Success", `Followed ${user.name}`, "success");
-        user.followers.push(currentUser._id); //  simulate adding to the followers
+        user.followers.push(currentUser?._id); //  simulate adding to the followers
       }
       setFollowing(!following);
     } catch (error) {

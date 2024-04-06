@@ -152,10 +152,12 @@ const updateUser = async (req, res, next) => {
 };
 
 const getUserProfile = async (req, res, next) => {
+  // we will fetch get user profile either by username or userId
   const { query } = req.params;
+  // we will fetch username 
   try {
     let user;
-    // query is userId
+    // query is either username or userId
     if (mongoose.Types.ObjectId.isValid(query)) {
       user = await User.findOne({ _id: query })
         .select("-password")

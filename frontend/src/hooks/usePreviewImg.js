@@ -17,7 +17,7 @@ const usePreviewImg = () => {
     }
   };
   console.log(imgURL);
-  return { handleImageChange, imgURL };
+  return { handleImageChange, imgURL, setImgURL };
 };
 
 export default usePreviewImg;

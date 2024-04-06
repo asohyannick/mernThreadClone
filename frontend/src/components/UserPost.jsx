@@ -57,7 +57,7 @@ function UserPost({ likes, replies, postImg, postTitle }) {
             </Flex>
           </Flex>
           <Text fontSize={"sm"}>{postTitle}</Text>
-          {postImg && postImg &&(
+          {postImg && postImg && (
               <Box
                 borderRadius={6}
                 overflow={"hidden"}

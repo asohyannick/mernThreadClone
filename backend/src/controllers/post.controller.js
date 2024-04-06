@@ -2,9 +2,11 @@ import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 import { StatusCodes } from "http-status-codes";
+import { v2 as cloudinary } from "cloudinary";
 const createPost = async (req, res, next) => {
   try {
-    const { postedBy, text, img } = req.body;
+    const { postedBy, text } = req.body;
+    let { img } = req.body;
     if (!postedBy || !text) {
       return next(
         errorHandler(
@@ -31,6 +33,10 @@ const createPost = async (req, res, next) => {
         )
       );
     }
+    if (img) {
+      const uploadedResponse = await cloudinary.uploader.upload(img);
+      img = uploadedResponse.secure_url;
+    }
     const newPost = new Post({ postedBy, text, img });
     await newPost.save();
     res
@@ -47,7 +53,7 @@ const getPost = async (req, res, next) => {
     if (!post) {
       return next(errorHandler(StatusCodes.NOT_FOUND, "Post not found!"));
     }
-    res.status(StatusCodes.OK).json({ post });
+    res.status(StatusCodes.OK).json(post);
   } catch (error) {
     next(error);
   }
@@ -66,6 +72,10 @@ const deletePost = async (req, res, next) => {
           "Unauthorized to delete this post!"
         )
       );
+    }
+    if (post.img) {
+        const imgId = post.img.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(imgId);      
     }
     await Post.findByIdAndDelete(req.params.id);
     res.status(StatusCodes.OK).json("Post has been deleted successfully!");
@@ -135,7 +145,7 @@ const feedPost = async (req, res, next) => {
     const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({
       createdAt: -1,
     });
-    res.status(StatusCodes.OK).json({ feedPosts });
+    res.status(StatusCodes.OK).json(feedPosts);
   } catch (error) {
     next(error);
   }

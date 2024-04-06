@@ -24,11 +24,11 @@ export default function LoginCard() {
   const setAuthScreen = useSetRecoilState(authScreenAtom);
   const showToast = useShowToast();
   const setUser = useSetRecoilState(userAtom);
+  const [loading, setLoading] = useState(false);
   const [inputs, setInputs] = useState({
     name: "",
     username: "",
   });
-  const [loading, setLoading] = useState(false);
   const handleSignUp = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -106,7 +106,7 @@ export default function LoginCard() {
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
-                loadingText="Submitting"
+                loadingText="Logging in"
                 size="lg"
                 bg={useColorModeValue("gray.600", "gray.700")}
                 color={"white"}

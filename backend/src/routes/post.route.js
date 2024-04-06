@@ -7,6 +7,6 @@ router.get("/user/:username", post.getUserPosts);
 router.get("/feedPost", protectedRoute, post.feedPost);
 router.post("/create", protectedRoute, post.createPost);
 router.put("/like/:id", protectedRoute, post.likeUnLikePost);
-router.delete("/deletePost/:id", protectedRoute, post.deletePost);
-router.put("/replyToPost/:id", protectedRoute, post.replyToPost);
+router.delete("/delete/:id", protectedRoute, post.deletePost);
+router.put("/reply/:id", protectedRoute, post.replyToPost);
 export default router;
