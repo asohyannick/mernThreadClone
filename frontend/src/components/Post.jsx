@@ -1,20 +1,24 @@
-import { Avatar, Box, Flex, Text, Image } from "@chakra-ui/react";
+import {Box, Flex, Text} from "@chakra-ui/react";
+import { Image } from "@chakra-ui/image";
+import { Avatar } from "@chakra-ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import Actions from "./Actions";
 import useShowToast from "../hooks/useShowToast";
 import { useState, useEffect } from "react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { formatDistanceToNow } from "date-fns";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import postsAtom from "../atoms/postsAtom";
-function Post({ post, postedBy, setPosts }) {
-  const [user, setUser] = useState(null);
+
+function Post({ post, postedBy }) {
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
   const showToast = useShowToast();
-  const navigate = useNavigate();
   const currentUser = useRecoilValue(userAtom);
   const [posts, setPosts] = useRecoilState(postsAtom);
+  const navigate = useNavigate();
+
   useEffect(() => {
     const getUser = async () => {
       setLoading(true);
@@ -39,8 +43,7 @@ function Post({ post, postedBy, setPosts }) {
     setLoading(true);
     try {
       e.preventDefault();
-      if (!window.confirm("Are you sure you want to delete this post?"))
-        return;
+      if (!window.confirm("Are you sure you want to delete this post?")) return;
       const res = await fetch(`/api/v1/posts/delete/${post._id}`, {
         method: "DELETE",
       });

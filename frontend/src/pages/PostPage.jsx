@@ -24,11 +24,9 @@ function PostPage() {
   const [posts, setPosts] = useRecoilState(postsAtom);
   const showToast = useShowToast();
   const { pid } = useParams();
-  const currentUser = useRecoilValue(userAtom);
+  const currentUser = useRecoilValue(userAtom)
   const navigate = useNavigate();
-
   const currentPost = posts[0];
-
   useEffect(() => {
     const getPost = async () => {
       setPosts([]);

@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 import bcryptjs from "bcryptjs";
+import Post from "../models/post.model.js";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import generateTokenAndSetCookies from "../utils/helpers/generateTokenAndSetCookies.js";
@@ -92,15 +93,15 @@ const followUnFollowUser = async (req, res, next) => {
       await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
       await User.findByIdAndUpdate(req.user_id, { $push: { following: id } });
       res
-      .status(StatusCodes.OK)
-      .json("You are following this user successfully!");
-    } else if(!isFollowing) {
+        .status(StatusCodes.OK)
+        .json("You are following this user successfully!");
+    } else if (!isFollowing) {
       // unfollow user
       await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
       await User.findByIdAndUpdate(req.user_id, { $pull: { following: id } });
       res
-      .status(StatusCodes.OK)
-      .json("You have unfollowed this user successfully!");
+        .status(StatusCodes.OK)
+        .json("You have unfollowed this user successfully!");
     }
   } catch (error) {
     next(error);
@@ -143,6 +144,17 @@ const updateUser = async (req, res, next) => {
     user.profilePic = profilePic || user.profilePic;
     user.bio = bio || user.bio;
     user = await user.save();
+    // Find all post that this user replies and update username and userProfilePic fields.
+    await Post.updateMany(
+      { "replies.userId": userId },
+      {
+        $set: {
+          "replies.$[reply].username": user.username,
+          "replies.$[reply].userProfilePic": user.profilePic,
+        },
+      },
+      { arrayFilters: [{ "reply.userId": userId }] }
+    );
     // password should be null in response
     user.password = null;
     res.status(StatusCodes.OK).json(user);
@@ -154,7 +166,7 @@ const updateUser = async (req, res, next) => {
 const getUserProfile = async (req, res, next) => {
   // we will fetch get user profile either by username or userId
   const { query } = req.params;
-  // we will fetch username 
+  // we will fetch username
   try {
     let user;
     // query is either username or userId

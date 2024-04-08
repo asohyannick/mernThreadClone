@@ -22,16 +22,20 @@ import { AddIcon } from "@chakra-ui/icons";
 import { useRef, useState } from "react";
 import usePreviewImg from "../hooks/usePreviewImg";
 import userAtom from "../atoms/userAtom";
+import postsAtom from '../atoms/postsAtom';
 import { useRecoilValue} from "recoil";
 import useShowToast from "../hooks/useShowToast";
+import {useParams} from 'react-router-dom';
 const MAX_CHAR = 500;
 const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [postText, setPostText] = useState("");
   const [remainingChar, setRemainingChar] = useState(MAX_CHAR);
   const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilValue(postsAtom);
   const { handleImageChange, imgURL, setImgURL } = usePreviewImg();
   const user = useRecoilValue(userAtom);
+  const {username} = useParams();
   const imageRef = useRef(null);
   const showToast = useShowToast();
   const handleTextChange = (e) => {
@@ -65,6 +69,9 @@ const CreatePost = () => {
         return;
       }
       showToast("Success", "Post created succesfully", "success");
+      if(username === user.username) {
+        setPosts([data, ...posts]);
+      }
       onClose();
       setPostText("");
       setImgURL("");
