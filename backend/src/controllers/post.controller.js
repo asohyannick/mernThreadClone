@@ -39,9 +39,7 @@ const createPost = async (req, res, next) => {
     }
     const newPost = new Post({ postedBy, text, img });
     await newPost.save();
-    res
-      .status(StatusCodes.CREATED)
-      .json({ message: "Post created successfully", newPost });
+    res.status(StatusCodes.CREATED).json(newPost);
   } catch (error) {
     next(error);
   }
@@ -74,8 +72,8 @@ const deletePost = async (req, res, next) => {
       );
     }
     if (post.img) {
-        const imgId = post.img.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(imgId);      
+      const imgId = post.img.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(imgId);
     }
     await Post.findByIdAndDelete(req.params.id);
     res.status(StatusCodes.OK).json("Post has been deleted successfully!");
@@ -126,9 +124,7 @@ const replyToPost = async (req, res, next) => {
     const reply = { userId, text, userPofilePic, username };
     post.replies.push(reply);
     await post.save();
-    res
-      .status(StatusCodes.OK)
-      .json({ message: "Reply added successfully", post });
+    res.status(StatusCodes.OK).json(reply);
   } catch (error) {
     next(error);
   }

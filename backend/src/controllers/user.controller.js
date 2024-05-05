@@ -163,6 +163,52 @@ const updateUser = async (req, res, next) => {
   }
 };
 
+const getSuggestedUsers = async (req, res, next) => {
+  try {
+    // exclude the current user from suggested users array and exclude users that current user is already following
+    const userId = req.user._id;
+
+    const usersFollowedByYou = await User.findById(userId).select("following");
+
+    const users = await User.aggregate([
+      {
+        $match: {
+          _id: { $ne: userId },
+        },
+      },
+      {
+        $sample: { size: 10 },
+      },
+    ]);
+    const filteredUsers = users.filter(
+      (user) => !usersFollowedByYou.following.includes(user._id)
+    );
+    const suggestedUsers = filteredUsers.slice(0, 4);
+
+    suggestedUsers.forEach((user) => (user.password = null));
+
+    res.status(StatusCodes.OK).json(suggestedUsers);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const freezeAccount = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return next(errorHandler(StatusCodes.BAD_REQUEST, "User not found"));
+    }
+
+    user.isFrozen = true;
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getUserProfile = async (req, res, next) => {
   // we will fetch get user profile either by username or userId
   const { query } = req.params;
@@ -219,4 +265,6 @@ export default {
   updateUser,
   getUserProfile,
   deleteUser,
+  getSuggestedUsers,
+  freezeAccount,
 };
